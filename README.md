@@ -27,6 +27,12 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 ## 🔒 Ethical Considerations
 InclusionIQ analyzes only anonymized and voluntary feedback. The tool is intended to support organizational improvement and should not be used to evaluate individual employees.
 
+## 🚀 Future Improvements
+
+- Dashboard visualization for easier interpretation of insights
+- Real-time feedback analysis
+- Integration with HR platforms and survey tools
+
 ## 📌 Author
 **Kathryn Buckley**  
 Sociology Student, Lamar University

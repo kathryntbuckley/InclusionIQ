@@ -22,12 +22,25 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 ## 🧪 Demo Materials
 - Sample dataset: `sample_data/employee_feedback_sample.csv`
 - Sample report: `docs/sample_report.md`
+- Prototype analysis script: `src/analysis_prototype.py`
 
-These files demonstrate the type of anonymous survey data InclusionIQ is designed to analyze and the kind of workplace insight report it can generate.
+These files demonstrate the type of anonymous survey data InclusionIQ is designed to analyze, the kind of workplace insight report it can generate, and the early analysis logic behind the prototype.
+
+## ▶️ How to Run the Prototype
+1. Clone or download this repository.
+2. Open the project folder in a code editor or terminal.
+3. Run the prototype script:
+
+```bash
+python src/analysis_prototype.py
+```
+
+The script reads the fictional sample dataset, calculates average workplace scores, identifies recurring themes, estimates overall sentiment, and prints recommended actions.
 
 ## 🧰 Technologies Used
 - OpenAI Codex
-- Python / JavaScript for prototype logic
+- Python for prototype analysis logic
+- JavaScript for future interface development
 - HTML/CSS for interface design
 
 ## 🔒 Ethical Considerations
@@ -38,6 +51,8 @@ InclusionIQ analyzes only anonymized and voluntary feedback. The tool is intende
 - Dashboard visualization for easier interpretation of insights
 - Real-time feedback analysis
 - Integration with HR platforms and survey tools
+- Downloadable workplace insight reports
+- Expanded theme detection and AI-assisted recommendations
 
 ## 📌 Author
 **Kathryn Buckley**  

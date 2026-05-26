@@ -19,9 +19,15 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 - Actionable recommendations
 - Ethical and privacy-focused design
 
+## 🧪 Demo Materials
+- Sample dataset: `sample_data/employee_feedback_sample.csv`
+- Sample report: `docs/sample_report.md`
+
+These files demonstrate the type of anonymous survey data InclusionIQ is designed to analyze and the kind of workplace insight report it can generate.
+
 ## 🧰 Technologies Used
 - OpenAI Codex
-- Python / JavaScript (conceptual prototype)
+- Python / JavaScript for prototype logic
 - HTML/CSS for interface design
 
 ## 🔒 Ethical Considerations

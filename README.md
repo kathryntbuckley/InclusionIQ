@@ -23,8 +23,9 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 - Sample dataset: `sample_data/employee_feedback_sample.csv`
 - Sample report: `docs/sample_report.md`
 - Prototype analysis script: `src/analysis_prototype.py`
+- Prototype output example: `docs/prototype_output.md`
 
-These files demonstrate the type of anonymous survey data InclusionIQ is designed to analyze, the kind of workplace insight report it can generate, and the early analysis logic behind the prototype.
+These files demonstrate the type of anonymous survey data InclusionIQ is designed to analyze, the kind of workplace insight report it can generate, the early analysis logic behind the prototype, and example prototype output.
 
 ## ▶️ How to Run the Prototype
 1. Clone or download this repository.

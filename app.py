@@ -82,15 +82,15 @@ def apply_page_style():
             margin-bottom: 0;
         }
 
-        .info-grid {
+        .info-grid, .highlight-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1rem;
             margin: 1.3rem 0 1.6rem 0;
         }
 
-        .info-card {
-            background: rgba(255, 255, 255, 0.84);
+        .info-card, .highlight-card {
+            background: rgba(255, 255, 255, 0.88);
             border: 1px solid rgba(124, 58, 237, 0.12);
             border-radius: 20px;
             padding: 1.05rem 1.1rem;
@@ -108,6 +108,27 @@ def apply_page_style():
             font-size: 0.93rem;
             line-height: 1.5;
             margin: 0;
+        }
+
+        .highlight-card span {
+            color: #7c3aed;
+            font-size: 0.76rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .highlight-card strong {
+            color: #1f2937;
+            display: block;
+            font-size: 1.25rem;
+            margin-top: 0.28rem;
+        }
+
+        .highlight-card p {
+            color: #64748b;
+            margin: 0.35rem 0 0 0;
+            line-height: 1.45;
         }
 
         [data-testid="stMetric"] {
@@ -158,15 +179,15 @@ def render_intro_cards():
         """
         <div class="info-grid">
             <div class="info-card">
-                <h3>📊 Understand the mood</h3>
+                <h3>Understand the mood</h3>
                 <p>Review average workplace scores and overall sentiment at a glance.</p>
             </div>
             <div class="info-card">
-                <h3>💬 Find the themes</h3>
+                <h3>Find the themes</h3>
                 <p>See which concerns and strengths appear most often in employee comments.</p>
             </div>
             <div class="info-card">
-                <h3>🌱 Take thoughtful action</h3>
+                <h3>Take thoughtful action</h3>
                 <p>Generate practical recommendations while keeping employee privacy front and center.</p>
             </div>
         </div>
@@ -175,31 +196,111 @@ def render_intro_cards():
     )
 
 
-def render_bar_chart(dataframe, category_column, value_column, color):
-    chart = (
-        alt.Chart(dataframe)
-        .mark_bar(cornerRadiusTopLeft=8, cornerRadiusTopRight=8)
-        .encode(
-            x=alt.X(
-                f"{category_column}:N",
-                title=None,
-                sort=list(dataframe[category_column]),
-                axis=alt.Axis(labelAngle=0),
-            ),
-            y=alt.Y(f"{value_column}:Q", title=None),
-            color=alt.value(color),
-            tooltip=[
-                alt.Tooltip(f"{category_column}:N", title=category_column),
-                alt.Tooltip(f"{value_column}:Q", title=value_column),
-            ],
-        )
-        .properties(height=320)
-    )
-    st.altair_chart(chart, use_container_width=True)
-
-
 def format_score_label(field):
     return field.replace("_", " ").replace("score", "").strip().title()
+
+
+def get_score_extremes(averages):
+    strongest_field = max(averages, key=averages.get)
+    watch_field = min(averages, key=averages.get)
+    return strongest_field, averages[strongest_field], watch_field, averages[watch_field]
+
+
+def render_insight_highlights(analysis):
+    strongest_field, strongest_score, watch_field, watch_score = get_score_extremes(analysis["averages"])
+    top_theme = analysis["themes"][0][0] if analysis["themes"] else "No recurring theme detected"
+    top_theme_count = analysis["themes"][0][1] if analysis["themes"] else 0
+
+    st.markdown(
+        f"""
+        <div class="highlight-grid">
+            <div class="highlight-card">
+                <span>Strongest signal</span>
+                <strong>{format_score_label(strongest_field)}</strong>
+                <p>{strongest_score}/5 average score</p>
+            </div>
+            <div class="highlight-card">
+                <span>Watch area</span>
+                <strong>{format_score_label(watch_field)}</strong>
+                <p>{watch_score}/5 average score</p>
+            </div>
+            <div class="highlight-card">
+                <span>Top theme</span>
+                <strong>{top_theme}</strong>
+                <p>{top_theme_count} keyword matches</p>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_accessible_summary(analysis):
+    strongest_field, strongest_score, watch_field, watch_score = get_score_extremes(analysis["averages"])
+    top_theme = analysis["themes"][0][0] if analysis["themes"] else "no recurring theme detected"
+
+    with st.expander("Plain-language summary"):
+        st.write(
+            f"The strongest score is {format_score_label(strongest_field)} at {strongest_score}/5."
+        )
+        st.write(
+            f"The lowest score is {format_score_label(watch_field)} at {watch_score}/5."
+        )
+        st.write(f"The most common theme is {top_theme}.")
+        st.write(
+            "Each chart is paired with a data table so the information is not communicated by color alone."
+        )
+
+
+def render_bar_chart(dataframe, category_column, value_column, color, x_domain=None, value_format=".2f"):
+    if dataframe.empty:
+        return
+
+    chart_data = dataframe.copy()
+    chart_data[value_column] = pd.to_numeric(chart_data[value_column], errors="coerce").fillna(0)
+    x_scale = alt.Scale(domain=x_domain) if x_domain else alt.Scale(zero=True)
+
+    base = alt.Chart(chart_data).encode(
+        y=alt.Y(
+            f"{category_column}:N",
+            title=None,
+            sort=alt.SortField(field=value_column, order="descending"),
+            axis=alt.Axis(labelLimit=260),
+        ),
+        x=alt.X(
+            f"{value_column}:Q",
+            title=None,
+            scale=x_scale,
+            axis=alt.Axis(grid=True),
+        ),
+        tooltip=[
+            alt.Tooltip(f"{category_column}:N", title=category_column),
+            alt.Tooltip(f"{value_column}:Q", title=value_column, format=value_format),
+        ],
+    )
+
+    bars = base.mark_bar(
+        color=color,
+        cornerRadiusTopRight=10,
+        cornerRadiusBottomRight=10,
+    )
+    labels = base.mark_text(
+        align="left",
+        baseline="middle",
+        dx=7,
+        color="#1f2937",
+        fontSize=13,
+    ).encode(text=alt.Text(f"{value_column}:Q", format=value_format))
+
+    chart = (bars + labels).properties(height=max(220, 44 * len(chart_data)))
+    st.altair_chart(
+        chart.configure_axis(
+            gridColor="#e5e7eb",
+            labelColor="#475569",
+            titleColor="#475569",
+        ).configure_view(strokeWidth=0),
+        use_container_width=True,
+    )
 
 
 def validate_columns(dataframe):
@@ -281,6 +382,9 @@ def main():
         st.markdown("---")
         st.markdown("### Privacy first")
         st.caption("This prototype is designed for anonymous, voluntary feedback and organization-level insight.")
+        st.markdown("---")
+        st.markdown("### Accessibility")
+        st.caption("Charts include tooltips, text summaries, and matching tables so insights do not rely on color alone.")
 
     raw_data = pd.read_csv(uploaded_file) if uploaded_file is not None else load_sample_data()
     data_source = uploaded_file.name if uploaded_file is not None else "employee_feedback_sample.csv"
@@ -316,6 +420,9 @@ def main():
     metric_columns[2].metric("Average Score", f"{analysis['overall_average']}/5")
     metric_columns[3].metric("Sentiment", analysis["sentiment"])
 
+    render_insight_highlights(analysis)
+    render_accessible_summary(analysis)
+
     st.markdown(
         f'<div class="soft-note">Currently viewing data from <strong>{data_source}</strong>.</div>',
         unsafe_allow_html=True,
@@ -333,16 +440,30 @@ def main():
             }
         )
         st.subheader("Average Scores")
-        render_bar_chart(score_summary, "Category", "Average", SCORE_BAR_COLOR)
+        st.caption("Higher scores indicate more positive employee ratings. The chart is paired with a table below.")
+        render_bar_chart(score_summary, "Category", "Average", SCORE_BAR_COLOR, x_domain=[0, 5.6])
+        with st.expander("View average score data table"):
+            st.dataframe(score_summary, hide_index=True, use_container_width=True)
 
         theme_summary = pd.DataFrame(
             analysis["themes"][:5], columns=["Theme", "Keyword Matches"]
         )
         st.subheader("Top Themes")
+        st.caption("Theme counts are based on simple keyword matching in the sample feedback comments.")
         if theme_summary.empty:
             st.info("No recurring theme keywords found.")
         else:
-            render_bar_chart(theme_summary, "Theme", "Keyword Matches", THEME_BAR_COLOR)
+            max_theme_count = max(theme_summary["Keyword Matches"].max(), 1)
+            render_bar_chart(
+                theme_summary,
+                "Theme",
+                "Keyword Matches",
+                THEME_BAR_COLOR,
+                x_domain=[0, max_theme_count * 1.2],
+                value_format=".0f",
+            )
+            with st.expander("View theme data table"):
+                st.dataframe(theme_summary, hide_index=True, use_container_width=True)
 
         department_scores = (
             filtered_feedback.groupby("department")[SCORE_FIELDS]

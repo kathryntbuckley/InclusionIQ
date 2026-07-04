@@ -17,8 +17,20 @@ from src.analysis_prototype import (
 
 SAMPLE_DATA_PATH = Path(__file__).resolve().parent / "sample_data" / "employee_feedback_sample.csv"
 REQUIRED_COLUMNS = {"department", "comment", *SCORE_FIELDS}
-SCORE_BAR_COLOR = "#c2410c"
-THEME_BAR_COLOR = "#7c3aed"
+DEFAULT_CHART_COLORS = {
+    "score": "#c2410c",
+    "theme": "#7c3aed",
+    "text": "#1f2937",
+    "axis": "#475569",
+    "grid": "#e5e7eb",
+}
+HIGH_CONTRAST_CHART_COLORS = {
+    "score": "#000000",
+    "theme": "#005fcc",
+    "text": "#000000",
+    "axis": "#000000",
+    "grid": "#6b7280",
+}
 ETHICAL_NOTE = (
     "InclusionIQ is designed for anonymized, voluntary feedback and should be "
     "used to support organizational improvement, not to evaluate individual employees."
@@ -30,36 +42,131 @@ def load_sample_data():
     return pd.read_csv(SAMPLE_DATA_PATH)
 
 
-def apply_page_style():
-    st.markdown(
-        """
+def get_chart_colors(high_contrast_mode):
+    return HIGH_CONTRAST_CHART_COLORS if high_contrast_mode else DEFAULT_CHART_COLORS
+
+
+def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False):
+    max_width = "920px" if reader_friendly_mode else "1180px"
+    page_background = "#ffffff" if high_contrast_mode else "linear-gradient(180deg, #fff7ed 0%, #ffffff 34%, #f8fafc 100%)"
+    sidebar_background = "#ffffff" if high_contrast_mode else "#fff7ed"
+    hero_background = "#ffffff" if high_contrast_mode else "linear-gradient(135deg, #fff7ed 0%, #fef3c7 46%, #ede9fe 100%)"
+    strong_text = "#000000" if high_contrast_mode else "#1f2937"
+    muted_text = "#111111" if high_contrast_mode else "#64748b"
+    body_text = "#000000" if high_contrast_mode else "#475569"
+    accent_color = "#000000" if high_contrast_mode else "#7c3aed"
+    card_background = "#ffffff" if high_contrast_mode else "rgba(255, 255, 255, 0.88)"
+    metric_background = "#ffffff" if high_contrast_mode else "rgba(255, 255, 255, 0.9)"
+    border_color = "#000000" if high_contrast_mode else "rgba(124, 58, 237, 0.12)"
+    hero_border_color = "#000000" if high_contrast_mode else "rgba(124, 58, 237, 0.15)"
+    sidebar_border_color = "#000000" if high_contrast_mode else "rgba(124, 58, 237, 0.12)"
+    shadow = "none" if high_contrast_mode else "0 12px 28px rgba(15, 23, 42, 0.05)"
+    hero_shadow = "none" if high_contrast_mode else "0 18px 45px rgba(88, 28, 135, 0.10)"
+    soft_note_background = "#ffffff" if high_contrast_mode else "#f8fafc"
+
+    reader_css = """
+        .block-container {
+            line-height: 1.75;
+        }
+
+        .hero-card {
+            border-radius: 14px;
+            padding: 1.6rem 1.7rem;
+        }
+
+        .hero-card h1 {
+            font-size: 2.65rem;
+            line-height: 1.12;
+        }
+
+        .hero-card p,
+        .info-card p,
+        .highlight-card p,
+        .soft-note,
+        [data-testid="stMarkdownContainer"] p,
+        [data-testid="stMarkdownContainer"] li {
+            font-size: 1.08rem;
+            line-height: 1.75;
+        }
+
+        .info-grid,
+        .highlight-grid {
+            grid-template-columns: 1fr;
+            gap: 0.85rem;
+        }
+
+        .info-card,
+        .highlight-card,
+        [data-testid="stMetric"] {
+            border-radius: 12px;
+        }
+        """ if reader_friendly_mode else ""
+
+    high_contrast_css = """
+        [data-testid="stAppViewContainer"],
+        [data-testid="stSidebar"],
+        [data-testid="stHeader"] {
+            color: #000000 !important;
+        }
+
+        .hero-card,
+        .info-card,
+        .highlight-card,
+        .soft-note,
+        [data-testid="stMetric"] {
+            border-width: 2px !important;
+            box-shadow: none !important;
+        }
+
+        a {
+            color: #0038ff !important;
+            text-decoration: underline !important;
+        }
+
+        .stButton button,
+        .stDownloadButton button {
+            background: #000000 !important;
+            border: 2px solid #000000 !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+        }
+
+        input,
+        textarea,
+        select {
+            border: 2px solid #000000 !important;
+        }
+        """ if high_contrast_mode else ""
+
+    style = """
         <style>
         .block-container {
             padding-top: 2rem;
             padding-bottom: 3rem;
-            max-width: 1180px;
+            max-width: __MAX_WIDTH__;
         }
 
         [data-testid="stAppViewContainer"] {
-            background: linear-gradient(180deg, #fff7ed 0%, #ffffff 34%, #f8fafc 100%);
+            background: __PAGE_BACKGROUND__;
+            color: __BODY_TEXT__;
         }
 
         [data-testid="stSidebar"] {
-            background: #fff7ed;
-            border-right: 1px solid rgba(124, 58, 237, 0.12);
+            background: __SIDEBAR_BACKGROUND__;
+            border-right: 1px solid __SIDEBAR_BORDER_COLOR__;
         }
 
         .hero-card {
-            background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 46%, #ede9fe 100%);
-            border: 1px solid rgba(124, 58, 237, 0.15);
+            background: __HERO_BACKGROUND__;
+            border: 1px solid __HERO_BORDER_COLOR__;
             border-radius: 28px;
             padding: 2.2rem 2.4rem;
             margin-bottom: 1.4rem;
-            box-shadow: 0 18px 45px rgba(88, 28, 135, 0.10);
+            box-shadow: __HERO_SHADOW__;
         }
 
         .hero-eyebrow {
-            color: #7c3aed;
+            color: __ACCENT_COLOR__;
             font-size: 0.9rem;
             font-weight: 800;
             letter-spacing: 0.12em;
@@ -68,14 +175,14 @@ def apply_page_style():
         }
 
         .hero-card h1 {
-            color: #1f2937;
+            color: __STRONG_TEXT__;
             font-size: 3.1rem;
             line-height: 1;
             margin: 0 0 0.5rem 0;
         }
 
         .hero-card p {
-            color: #4b5563;
+            color: __BODY_TEXT__;
             font-size: 1.12rem;
             line-height: 1.65;
             max-width: 790px;
@@ -90,28 +197,28 @@ def apply_page_style():
         }
 
         .info-card, .highlight-card {
-            background: rgba(255, 255, 255, 0.88);
-            border: 1px solid rgba(124, 58, 237, 0.12);
+            background: __CARD_BACKGROUND__;
+            border: 1px solid __BORDER_COLOR__;
             border-radius: 20px;
             padding: 1.05rem 1.1rem;
-            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+            box-shadow: __SHADOW__;
         }
 
         .info-card h3 {
-            color: #1f2937;
+            color: __STRONG_TEXT__;
             font-size: 1rem;
             margin: 0 0 0.35rem 0;
         }
 
         .info-card p {
-            color: #64748b;
+            color: __MUTED_TEXT__;
             font-size: 0.93rem;
             line-height: 1.5;
             margin: 0;
         }
 
         .highlight-card span {
-            color: #7c3aed;
+            color: __ACCENT_COLOR__;
             font-size: 0.76rem;
             font-weight: 800;
             letter-spacing: 0.08em;
@@ -119,24 +226,24 @@ def apply_page_style():
         }
 
         .highlight-card strong {
-            color: #1f2937;
+            color: __STRONG_TEXT__;
             display: block;
             font-size: 1.25rem;
             margin-top: 0.28rem;
         }
 
         .highlight-card p {
-            color: #64748b;
+            color: __MUTED_TEXT__;
             margin: 0.35rem 0 0 0;
             line-height: 1.45;
         }
 
         [data-testid="stMetric"] {
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(124, 58, 237, 0.10);
+            background: __METRIC_BACKGROUND__;
+            border: 1px solid __BORDER_COLOR__;
             border-radius: 18px;
             padding: 1rem;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            box-shadow: __SHADOW__;
         }
 
         div[data-testid="stTabs"] button {
@@ -144,17 +251,43 @@ def apply_page_style():
         }
 
         .soft-note {
-            background: #f8fafc;
-            border-left: 5px solid #7c3aed;
+            background: __SOFT_NOTE_BACKGROUND__;
+            border-left: 5px solid __ACCENT_COLOR__;
             border-radius: 14px;
             padding: 0.9rem 1rem;
-            color: #475569;
+            color: __BODY_TEXT__;
             margin: 0.6rem 0 1.2rem 0;
         }
+        __READER_CSS__
+        __HIGH_CONTRAST_CSS__
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
+        """
+
+    replacements = {
+        "__MAX_WIDTH__": max_width,
+        "__PAGE_BACKGROUND__": page_background,
+        "__SIDEBAR_BACKGROUND__": sidebar_background,
+        "__SIDEBAR_BORDER_COLOR__": sidebar_border_color,
+        "__HERO_BACKGROUND__": hero_background,
+        "__HERO_BORDER_COLOR__": hero_border_color,
+        "__STRONG_TEXT__": strong_text,
+        "__MUTED_TEXT__": muted_text,
+        "__BODY_TEXT__": body_text,
+        "__ACCENT_COLOR__": accent_color,
+        "__CARD_BACKGROUND__": card_background,
+        "__METRIC_BACKGROUND__": metric_background,
+        "__BORDER_COLOR__": border_color,
+        "__SHADOW__": shadow,
+        "__HERO_SHADOW__": hero_shadow,
+        "__SOFT_NOTE_BACKGROUND__": soft_note_background,
+        "__READER_CSS__": reader_css,
+        "__HIGH_CONTRAST_CSS__": high_contrast_css,
+    }
+
+    for placeholder, value in replacements.items():
+        style = style.replace(placeholder, value)
+
+    st.markdown(style, unsafe_allow_html=True)
 
 
 def render_hero():
@@ -252,7 +385,17 @@ def render_accessible_summary(analysis):
         )
 
 
-def render_bar_chart(dataframe, category_column, value_column, color, x_domain=None, value_format=".2f"):
+def render_bar_chart(
+    dataframe,
+    category_column,
+    value_column,
+    color,
+    x_domain=None,
+    value_format=".2f",
+    text_color="#1f2937",
+    axis_color="#475569",
+    grid_color="#e5e7eb",
+):
     if dataframe.empty:
         return
 
@@ -288,16 +431,16 @@ def render_bar_chart(dataframe, category_column, value_column, color, x_domain=N
         align="left",
         baseline="middle",
         dx=7,
-        color="#1f2937",
+        color=text_color,
         fontSize=13,
     ).encode(text=alt.Text(f"{value_column}:Q", format=value_format))
 
     chart = (bars + labels).properties(height=max(220, 44 * len(chart_data)))
     st.altair_chart(
         chart.configure_axis(
-            gridColor="#e5e7eb",
-            labelColor="#475569",
-            titleColor="#475569",
+            gridColor=grid_color,
+            labelColor=axis_color,
+            titleColor=axis_color,
         ).configure_view(strokeWidth=0),
         use_container_width=True,
     )
@@ -371,20 +514,39 @@ def build_report(analysis):
 
 def main():
     st.set_page_config(page_title="InclusionIQ", page_icon="🌱", layout="wide")
-    apply_page_style()
-    render_hero()
-    render_intro_cards()
 
     with st.sidebar:
         st.markdown("### Get started")
         st.caption("Use the built-in sample dataset or upload your own CSV with the same columns.")
         uploaded_file = st.file_uploader("Employee feedback CSV", type="csv")
         st.markdown("---")
+        st.markdown("### Display")
+        reader_friendly_mode = st.checkbox(
+            "Reader-friendly mode",
+            help="Uses larger text, simpler cards, and a narrower reading width.",
+        )
+        high_contrast_mode = st.checkbox(
+            "High-contrast mode",
+            help="Uses stronger contrast, clear borders, and reduced decorative styling.",
+        )
+        active_modes = []
+        if reader_friendly_mode:
+            active_modes.append("reader-friendly")
+        if high_contrast_mode:
+            active_modes.append("high-contrast")
+        if active_modes:
+            st.success("Active display modes: " + ", ".join(active_modes))
+        st.markdown("---")
         st.markdown("### Privacy first")
         st.caption("This prototype is designed for anonymous, voluntary feedback and organization-level insight.")
         st.markdown("---")
         st.markdown("### Accessibility")
         st.caption("Charts include tooltips, text summaries, and matching tables so insights do not rely on color alone.")
+
+    apply_page_style(reader_friendly_mode, high_contrast_mode)
+    chart_colors = get_chart_colors(high_contrast_mode)
+    render_hero()
+    render_intro_cards()
 
     raw_data = pd.read_csv(uploaded_file) if uploaded_file is not None else load_sample_data()
     data_source = uploaded_file.name if uploaded_file is not None else "employee_feedback_sample.csv"
@@ -441,7 +603,16 @@ def main():
         )
         st.subheader("Average Scores")
         st.caption("Higher scores indicate more positive employee ratings. The chart is paired with a table below.")
-        render_bar_chart(score_summary, "Category", "Average", SCORE_BAR_COLOR, x_domain=[0, 5.6])
+        render_bar_chart(
+            score_summary,
+            "Category",
+            "Average",
+            chart_colors["score"],
+            x_domain=[0, 5.6],
+            text_color=chart_colors["text"],
+            axis_color=chart_colors["axis"],
+            grid_color=chart_colors["grid"],
+        )
         with st.expander("View average score data table"):
             st.dataframe(score_summary, hide_index=True, use_container_width=True)
 
@@ -458,9 +629,12 @@ def main():
                 theme_summary,
                 "Theme",
                 "Keyword Matches",
-                THEME_BAR_COLOR,
+                chart_colors["theme"],
                 x_domain=[0, max_theme_count * 1.2],
                 value_format=".0f",
+                text_color=chart_colors["text"],
+                axis_color=chart_colors["axis"],
+                grid_color=chart_colors["grid"],
             )
             with st.expander("View theme data table"):
                 st.dataframe(theme_summary, hide_index=True, use_container_width=True)

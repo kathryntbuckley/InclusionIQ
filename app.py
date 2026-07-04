@@ -502,6 +502,9 @@ def main():
         available_columns = [column for column in display_columns if column in filtered_feedback]
         st.dataframe(filtered_feedback[available_columns], hide_index=True, use_container_width=True)
 
+    st.markdown("---")
+    st.caption("Built by Kathryn Buckley | Sociology, HR analytics, and ethical AI")
+
 
 if __name__ == "__main__":
     main()

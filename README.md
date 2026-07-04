@@ -20,10 +20,13 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 - Theme extraction from open-ended responses
 - Sentiment analysis
 - Quantitative summaries of survey ratings
+- Department-level filtering
 - Actionable recommendations
+- Downloadable Markdown insight report
 - Ethical and privacy-focused design
 
 ## Demo Materials
+- Streamlit app: `app.py`
 - Sample dataset: `sample_data/employee_feedback_sample.csv`
 - Sample report: `docs/sample_report.md`
 - Prototype analysis script: `src/analysis_prototype.py`
@@ -32,7 +35,23 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 
 These files demonstrate the type of anonymous survey data InclusionIQ is designed to analyze, the kind of workplace insight report it can generate, the early analysis logic behind the prototype, example prototype output, and the intended dashboard experience.
 
-## How to Run the Prototype
+## How to Run the Streamlit App
+1. Clone or download this repository.
+2. Install the required packages:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Start the app:
+
+```bash
+streamlit run app.py
+```
+
+The app loads the fictional sample dataset by default and can also analyze an uploaded CSV with the same columns.
+
+## How to Run the Prototype Script
 1. Clone or download this repository.
 2. Open the project folder in a code editor or terminal.
 3. Run the prototype script:
@@ -46,6 +65,8 @@ The script reads the fictional sample dataset, calculates average workplace scor
 ## Technologies Used
 - OpenAI Codex
 - Python for prototype analysis logic
+- Streamlit for the dashboard app
+- Pandas for data loading and filtering
 - JavaScript for future interface development
 - HTML/CSS for interface design
 

@@ -6,10 +6,6 @@
 ## Why I Built It
 Organizations often struggle to interpret large volumes of qualitative employee feedback. As a sociology student with an interest in human resources, I created InclusionIQ to bridge the gap between employee voice and leadership action.
 
-## Dashboard Mockup
-
-![InclusionIQ Dashboard Mockup](mockups/inclusioniq_dashboard_mockup.png)
-
 ## How It Works
 1. **Input:** Users upload or paste anonymous survey responses.
 2. **AI Analysis:** The system identifies themes, sentiment, strengths, and areas for improvement.
@@ -31,9 +27,8 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 - Sample report: `docs/sample_report.md`
 - Prototype analysis script: `src/analysis_prototype.py`
 - Prototype output example: `docs/prototype_output.md`
-- Dashboard mockup: `mockups/inclusioniq_dashboard_mockup.png`
 
-These files demonstrate the type of anonymous survey data InclusionIQ is designed to analyze, the kind of workplace insight report it can generate, the early analysis logic behind the prototype, example prototype output, and the intended dashboard experience.
+These files demonstrate the type of anonymous survey data InclusionIQ is designed to analyze, the kind of workplace insight report it can generate, the early analysis logic behind the prototype, example prototype output, and the interactive Streamlit experience.
 
 ## How to Run the Streamlit App
 1. Clone or download this repository.
@@ -75,7 +70,7 @@ InclusionIQ analyzes only anonymized and voluntary feedback. The tool is intende
 
 ## Future Improvements
 
-- Dashboard visualization for easier interpretation of insights
+- Enhanced dashboard visualizations for easier interpretation of insights
 - Real-time feedback analysis
 - Integration with HR platforms and survey tools
 - Downloadable workplace insight reports

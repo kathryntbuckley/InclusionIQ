@@ -169,7 +169,7 @@ def main():
             .round(2)
         )
         st.subheader("Department Averages")
-        st.dataframe(department_scores, width="stretch")
+        st.dataframe(department_scores, use_container_width=True)
 
     with recommendations_tab:
         st.subheader("Recommended Actions")
@@ -197,7 +197,7 @@ def main():
             "comment",
         ]
         available_columns = [column for column in display_columns if column in filtered_feedback]
-        st.dataframe(filtered_feedback[available_columns], hide_index=True, width="stretch")
+        st.dataframe(filtered_feedback[available_columns], hide_index=True, use_container_width=True)
 
 
 if __name__ == "__main__":

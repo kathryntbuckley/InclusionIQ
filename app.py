@@ -59,6 +59,25 @@ def apply_page_style():
             border-right: 1px solid rgba(124, 58, 237, 0.12);
         }
 
+        [data-testid="stHeader"] {
+            background: rgba(255, 255, 255, 0);
+            box-shadow: none;
+        }
+
+        [data-testid="stToolbar"] {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 180ms ease-in-out;
+        }
+
+        [data-testid="stHeader"]:hover [data-testid="stToolbar"],
+        [data-testid="stHeader"]:focus-within [data-testid="stToolbar"],
+        [data-testid="stToolbar"]:hover,
+        [data-testid="stToolbar"]:focus-within {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .hero-card {
             background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 46%, #ede9fe 100%);
             border: 1px solid rgba(124, 58, 237, 0.15);

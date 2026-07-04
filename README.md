@@ -3,6 +3,10 @@
 
 **InclusionIQ** is an AI-powered tool that analyzes anonymous employee survey feedback to generate actionable insights on workplace culture and leadership. It helps organizations better understand employee experiences and supports data-driven decision-making.
 
+## Live Demo
+
+Try the app here: [InclusionIQ Streamlit App](https://inclusioniq.streamlit.app/)
+
 ## Why I Built It
 Organizations often struggle to interpret large volumes of qualitative employee feedback. As a sociology student with an interest in human resources, I created InclusionIQ to bridge the gap between employee voice and leadership action.
 

@@ -16,6 +16,10 @@ from src.analysis_prototype import (
 
 SAMPLE_DATA_PATH = Path(__file__).resolve().parent / "sample_data" / "employee_feedback_sample.csv"
 REQUIRED_COLUMNS = {"department", "comment", *SCORE_FIELDS}
+ETHICAL_NOTE = (
+    "InclusionIQ is designed for anonymized, voluntary feedback and should be "
+    "used to support organizational improvement, not to evaluate individual employees."
+)
 
 
 @st.cache_data
@@ -88,13 +92,7 @@ def build_report(analysis):
     else:
         lines.append("- Collect more feedback or expand the theme keyword list before recommending action.")
 
-    lines.extend(
-        [
-            "",
-            "## Ethical Note",
-            "This summary is intended to support organizational improvement, not evaluate individual employees.",
-        ]
-    )
+    lines.extend(["", "## Ethical Note", ETHICAL_NOTE])
 
     return "\n".join(lines)
 
@@ -180,6 +178,9 @@ def main():
                 st.write(f"- {recommendation}")
         else:
             st.write("- Collect more feedback or expand the theme keyword list before recommending action.")
+
+        st.subheader("Ethical Note")
+        st.info(ETHICAL_NOTE)
 
         st.download_button(
             "Download report",

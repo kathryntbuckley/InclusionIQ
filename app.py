@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 
@@ -16,6 +17,8 @@ from src.analysis_prototype import (
 
 SAMPLE_DATA_PATH = Path(__file__).resolve().parent / "sample_data" / "employee_feedback_sample.csv"
 REQUIRED_COLUMNS = {"department", "comment", *SCORE_FIELDS}
+SCORE_BAR_COLOR = "#c2410c"
+THEME_BAR_COLOR = "#7c3aed"
 ETHICAL_NOTE = (
     "InclusionIQ is designed for anonymized, voluntary feedback and should be "
     "used to support organizational improvement, not to evaluate individual employees."
@@ -172,6 +175,29 @@ def render_intro_cards():
     )
 
 
+def render_bar_chart(dataframe, category_column, value_column, color):
+    chart = (
+        alt.Chart(dataframe)
+        .mark_bar(cornerRadiusTopLeft=8, cornerRadiusTopRight=8)
+        .encode(
+            x=alt.X(
+                f"{category_column}:N",
+                title=None,
+                sort=list(dataframe[category_column]),
+                axis=alt.Axis(labelAngle=0),
+            ),
+            y=alt.Y(f"{value_column}:Q", title=None),
+            color=alt.value(color),
+            tooltip=[
+                alt.Tooltip(f"{category_column}:N", title=category_column),
+                alt.Tooltip(f"{value_column}:Q", title=value_column),
+            ],
+        )
+        .properties(height=320)
+    )
+    st.altair_chart(chart, use_container_width=True)
+
+
 def format_score_label(field):
     return field.replace("_", " ").replace("score", "").strip().title()
 
@@ -307,7 +333,7 @@ def main():
             }
         )
         st.subheader("Average Scores")
-        st.bar_chart(score_summary.set_index("Category"))
+        render_bar_chart(score_summary, "Category", "Average", SCORE_BAR_COLOR)
 
         theme_summary = pd.DataFrame(
             analysis["themes"][:5], columns=["Theme", "Keyword Matches"]
@@ -316,7 +342,7 @@ def main():
         if theme_summary.empty:
             st.info("No recurring theme keywords found.")
         else:
-            st.bar_chart(theme_summary.set_index("Theme"))
+            render_bar_chart(theme_summary, "Theme", "Keyword Matches", THEME_BAR_COLOR)
 
         department_scores = (
             filtered_feedback.groupby("department")[SCORE_FIELDS]

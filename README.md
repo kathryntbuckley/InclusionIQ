@@ -72,6 +72,10 @@ The script reads the fictional sample dataset, calculates average workplace scor
 ## Ethical Considerations
 InclusionIQ analyzes only anonymized and voluntary feedback. The tool is intended to support organizational improvement and should not be used to evaluate individual employees.
 
+## Known Limitations
+
+This prototype uses fictional sample data and rule-based keyword matching for theme detection. Future versions could expand the analysis with more advanced natural language processing, stronger accessibility settings, and additional reporting options.
+
 ## Future Improvements
 
 - Enhanced dashboard visualizations for easier interpretation of insights

@@ -19,6 +19,16 @@ SAMPLE_DATA_PATH = Path(__file__).resolve().parent / "sample_data" / "employee_f
 REQUIRED_COLUMNS = {"department", "comment", *SCORE_FIELDS}
 SCORE_BAR_COLOR = "#c2410c"
 THEME_BAR_COLOR = "#7c3aed"
+SENTIMENT_LABELS = {
+    "Positive": "Positive",
+    "Mixed-positive": "Mixed+",
+    "Needs attention": "Needs attention",
+}
+SENTIMENT_DESCRIPTIONS = {
+    "Positive": "Most feedback signals are favorable, with more strengths than concerns in the current dataset.",
+    "Mixed-positive": "The overall pattern is mostly positive, but there are recurring concerns that leadership should still review.",
+    "Needs attention": "The feedback suggests several areas may need closer review and follow-up from leadership or HR.",
+}
 ETHICAL_NOTE = (
     "InclusionIQ is designed for anonymized, voluntary feedback and should be "
     "used to support organizational improvement, not to evaluate individual employees."
@@ -198,6 +208,16 @@ def render_intro_cards():
 
 def format_score_label(field):
     return field.replace("_", " ").replace("score", "").strip().title()
+
+
+def format_sentiment_label(sentiment):
+    return SENTIMENT_LABELS.get(sentiment, sentiment)
+
+
+def render_sentiment_details(sentiment):
+    with st.expander("Read full sentiment details"):
+        st.write(f"**Full sentiment:** {sentiment}")
+        st.write(SENTIMENT_DESCRIPTIONS.get(sentiment, "Review the feedback and scores for more context."))
 
 
 def get_score_extremes(averages):
@@ -418,8 +438,9 @@ def main():
     metric_columns[0].metric("Responses", len(analysis["rows"]))
     metric_columns[1].metric("Departments", filtered_feedback["department"].nunique())
     metric_columns[2].metric("Average Score", f"{analysis['overall_average']}/5")
-    metric_columns[3].metric("Sentiment", analysis["sentiment"])
+    metric_columns[3].metric("Sentiment", format_sentiment_label(analysis["sentiment"]))
 
+    render_sentiment_details(analysis["sentiment"])
     render_insight_highlights(analysis)
     render_accessible_summary(analysis)
 

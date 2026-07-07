@@ -27,6 +27,7 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 
 ## Accessibility Features
 - Reader-friendly mode for larger text, calmer spacing, and a narrower reading width
+- Dark mode for a full-page dark surface across the app, sidebar, cards, charts, and tables
 - High-contrast mode for stronger borders, simplified styling, and higher-contrast chart colors
 - Reduce-motion mode for users who prefer less animation or transition movement
 - Keyboard-visible focus styling and a skip link to the main workplace snapshot

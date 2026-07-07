@@ -14,7 +14,6 @@ from src.analysis_prototype import (
     identify_themes,
 )
 
-
 SAMPLE_DATA_PATH = Path(__file__).resolve().parent / "sample_data" / "employee_feedback_sample.csv"
 REQUIRED_COLUMNS = {"department", "comment", *SCORE_FIELDS}
 DEFAULT_CHART_COLORS = {
@@ -30,13 +29,6 @@ HIGH_CONTRAST_CHART_COLORS = {
     "text": "#000000",
     "axis": "#000000",
     "grid": "#6b7280",
-}
-DARK_CHART_COLORS = {
-    "score": "#f59e0b",
-    "theme": "#a78bfa",
-    "text": "#f8fafc",
-    "axis": "#e5e7eb",
-    "grid": "#475569",
 }
 SENTIMENT_LABELS = {
     "Positive": "Positive",
@@ -59,40 +51,16 @@ def load_sample_data():
     return pd.read_csv(SAMPLE_DATA_PATH)
 
 
-def get_chart_colors(high_contrast_mode, dark_mode=False):
-    if dark_mode:
-        return DARK_CHART_COLORS
+def get_chart_colors(high_contrast_mode=False):
     if high_contrast_mode:
         return HIGH_CONTRAST_CHART_COLORS
     return DEFAULT_CHART_COLORS
 
 
-def apply_page_style(
-    reader_friendly_mode=False,
-    high_contrast_mode=False,
-    reduce_motion_mode=False,
-    dark_mode=False,
-):
+def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduce_motion_mode=False):
     max_width = "920px" if reader_friendly_mode else "1180px"
 
-    if dark_mode:
-        page_background = "#080b12"
-        sidebar_background = "#0f172a"
-        hero_background = "#111827"
-        strong_text = "#f8fafc"
-        muted_text = "#d1d5db"
-        body_text = "#e5e7eb"
-        accent_color = "#c4b5fd"
-        focus_color = "#facc15"
-        card_background = "#111827"
-        metric_background = "#111827"
-        border_color = "#facc15" if high_contrast_mode else "#334155"
-        hero_border_color = "#facc15" if high_contrast_mode else "#475569"
-        sidebar_border_color = "#475569"
-        shadow = "none" if high_contrast_mode else "0 14px 32px rgba(0, 0, 0, 0.28)"
-        hero_shadow = "none" if high_contrast_mode else "0 18px 45px rgba(0, 0, 0, 0.32)"
-        soft_note_background = "#0f172a"
-    elif high_contrast_mode:
+    if high_contrast_mode:
         page_background = "#ffffff"
         sidebar_background = "#ffffff"
         hero_background = "#ffffff"
@@ -109,6 +77,8 @@ def apply_page_style(
         shadow = "none"
         hero_shadow = "none"
         soft_note_background = "#ffffff"
+        ethics_background = "#ffffff"
+        ethics_border = "#000000"
     else:
         page_background = "linear-gradient(180deg, #fff7ed 0%, #ffffff 34%, #f8fafc 100%)"
         sidebar_background = "#fff7ed"
@@ -118,14 +88,16 @@ def apply_page_style(
         body_text = "#475569"
         accent_color = "#7c3aed"
         focus_color = "#2563eb"
-        card_background = "rgba(255, 255, 255, 0.88)"
-        metric_background = "rgba(255, 255, 255, 0.9)"
-        border_color = "rgba(124, 58, 237, 0.12)"
-        hero_border_color = "rgba(124, 58, 237, 0.15)"
+        card_background = "rgba(255, 255, 255, 0.92)"
+        metric_background = "rgba(255, 255, 255, 0.94)"
+        border_color = "rgba(124, 58, 237, 0.14)"
+        hero_border_color = "rgba(124, 58, 237, 0.16)"
         sidebar_border_color = "rgba(124, 58, 237, 0.12)"
         shadow = "0 12px 28px rgba(15, 23, 42, 0.05)"
         hero_shadow = "0 18px 45px rgba(88, 28, 135, 0.10)"
         soft_note_background = "#f8fafc"
+        ethics_background = "#fff7ed"
+        ethics_border = "#c2410c"
 
     toolbar_transition = "none" if reduce_motion_mode else "opacity 180ms ease-in-out"
 
@@ -148,6 +120,7 @@ def apply_page_style(
         .info-card p,
         .highlight-card p,
         .soft-note,
+        .ethics-note,
         [data-testid="stMarkdownContainer"] p,
         [data-testid="stMarkdownContainer"] li {
             font-size: 1.08rem;
@@ -167,54 +140,12 @@ def apply_page_style(
         }
         """ if reader_friendly_mode else ""
 
-    if high_contrast_mode and dark_mode:
-        high_contrast_css = """
-        [data-testid="stAppViewContainer"],
-        [data-testid="stSidebar"],
-        [data-testid="stHeader"] {
-            color: #f8fafc !important;
-        }
-
+    high_contrast_css = """
         .hero-card,
         .info-card,
         .highlight-card,
         .soft-note,
-        [data-testid="stMetric"] {
-            border-width: 2px !important;
-            box-shadow: none !important;
-        }
-
-        a {
-            color: #93c5fd !important;
-            text-decoration: underline !important;
-        }
-
-        .stButton button,
-        .stDownloadButton button {
-            background: #f8fafc !important;
-            border: 2px solid #facc15 !important;
-            color: #000000 !important;
-            font-weight: 800 !important;
-        }
-
-        input,
-        textarea,
-        select {
-            border: 2px solid #facc15 !important;
-        }
-        """
-    elif high_contrast_mode:
-        high_contrast_css = """
-        [data-testid="stAppViewContainer"],
-        [data-testid="stSidebar"],
-        [data-testid="stHeader"] {
-            color: #000000 !important;
-        }
-
-        .hero-card,
-        .info-card,
-        .highlight-card,
-        .soft-note,
+        .ethics-note,
         [data-testid="stMetric"] {
             border-width: 2px !important;
             box-shadow: none !important;
@@ -238,76 +169,7 @@ def apply_page_style(
         select {
             border: 2px solid #000000 !important;
         }
-        """
-    else:
-        high_contrast_css = ""
-
-    dark_mode_css = """
-        html,
-        body,
-        .stApp,
-        [data-testid="stApp"],
-        [data-testid="stAppViewContainer"],
-        [data-testid="stMain"],
-        [data-testid="stMainBlockContainer"],
-        [data-testid="stVerticalBlock"],
-        section.main {
-            background: #080b12 !important;
-            color: #e5e7eb !important;
-        }
-
-        [data-testid="stSidebar"],
-        section[data-testid="stSidebar"] {
-            background: #0f172a !important;
-            color: #e5e7eb !important;
-        }
-
-        [data-testid="stHeader"] {
-            background: rgba(8, 11, 18, 0) !important;
-        }
-
-        [data-testid="stMarkdownContainer"],
-        [data-testid="stMarkdownContainer"] p,
-        [data-testid="stMarkdownContainer"] li,
-        [data-testid="stMarkdownContainer"] span,
-        [data-testid="stCaptionContainer"],
-        label,
-        .st-emotion-cache-ue6h4q,
-        .st-emotion-cache-16idsys {
-            color: #e5e7eb !important;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        .stMarkdown h1,
-        .stMarkdown h2,
-        .stMarkdown h3 {
-            color: #f8fafc !important;
-        }
-
-        [data-testid="stExpander"],
-        [data-testid="stExpander"] details,
-        [data-testid="stDataFrame"],
-        [data-testid="stTable"] {
-            background: #111827 !important;
-            color: #f8fafc !important;
-        }
-
-        .vega-embed,
-        .vega-embed > div,
-        .vega-embed canvas,
-        .vega-embed svg {
-            background: #111827 !important;
-        }
-
-        .vega-embed svg text {
-            fill: #f8fafc !important;
-        }
-        """ if dark_mode else ""
+        """ if high_contrast_mode else ""
 
     reduced_motion_css = """
         *,
@@ -320,73 +182,24 @@ def apply_page_style(
         }
         """ if reduce_motion_mode else ""
 
-    system_dark_css = """
-        @media (prefers-color-scheme: dark) {
-            html,
-            body,
-            .stApp,
-            [data-testid="stApp"],
-            [data-testid="stAppViewContainer"],
-            [data-testid="stMain"],
-            [data-testid="stMainBlockContainer"],
-            section.main {
-                background: #080b12 !important;
-                color: #e5e7eb !important;
-            }
-
-            [data-testid="stSidebar"],
-            section[data-testid="stSidebar"] {
-                background: #0f172a !important;
-                color: #e5e7eb !important;
-            }
-
-            [data-testid="stHeader"] {
-                background: rgba(8, 11, 18, 0) !important;
-            }
-
-            h1,
-            h2,
-            h3,
-            h4,
-            h5,
-            h6,
-            [data-testid="stMarkdownContainer"],
-            [data-testid="stMarkdownContainer"] p,
-            [data-testid="stMarkdownContainer"] li,
-            [data-testid="stMarkdownContainer"] span,
-            [data-testid="stCaptionContainer"],
-            label {
-                color: #f8fafc !important;
-            }
-
-            .hero-card,
-            .info-card,
-            .highlight-card,
-            .soft-note,
-            [data-testid="stMetric"],
-            [data-testid="stExpander"],
-            [data-testid="stDataFrame"],
-            [data-testid="stTable"] {
-                background: #111827 !important;
-                color: #f8fafc !important;
-                border-color: #334155 !important;
-            }
-
-            .vega-embed,
-            .vega-embed > div,
-            .vega-embed canvas,
-            .vega-embed svg {
-                background: #111827 !important;
-            }
-
-            .vega-embed svg text {
-                fill: #f8fafc !important;
-            }
-        }
-        """
-
     style = """
         <style>
+        :root {
+            color-scheme: light;
+        }
+
+        html,
+        body,
+        .stApp,
+        [data-testid="stApp"],
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"],
+        [data-testid="stMainBlockContainer"],
+        section.main {
+            background: __PAGE_BACKGROUND__ !important;
+            color: __BODY_TEXT__ !important;
+        }
+
         .skip-link {
             background: __STRONG_TEXT__;
             border: 3px solid __FOCUS_COLOR__;
@@ -422,18 +235,15 @@ def apply_page_style(
             max-width: __MAX_WIDTH__;
         }
 
-        [data-testid="stAppViewContainer"] {
-            background: __PAGE_BACKGROUND__;
-            color: __BODY_TEXT__;
-        }
-
-        [data-testid="stSidebar"] {
-            background: __SIDEBAR_BACKGROUND__;
+        [data-testid="stSidebar"],
+        section[data-testid="stSidebar"] {
+            background: __SIDEBAR_BACKGROUND__ !important;
             border-right: 1px solid __SIDEBAR_BORDER_COLOR__;
+            color: __BODY_TEXT__ !important;
         }
 
         [data-testid="stHeader"] {
-            background: rgba(255, 255, 255, 0);
+            background: rgba(255, 255, 255, 0) !important;
             box-shadow: none;
         }
 
@@ -449,6 +259,34 @@ def apply_page_style(
         [data-testid="stToolbar"]:focus-within {
             opacity: 1;
             pointer-events: auto;
+        }
+
+        [data-testid="stDecoration"] {
+            display: none;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        [data-testid="stMarkdownContainer"],
+        [data-testid="stMarkdownContainer"] p,
+        [data-testid="stMarkdownContainer"] li,
+        [data-testid="stMarkdownContainer"] span,
+        [data-testid="stCaptionContainer"],
+        label {
+            color: __BODY_TEXT__ !important;
+        }
+
+        h1,
+        h2,
+        h3,
+        .stMarkdown h1,
+        .stMarkdown h2,
+        .stMarkdown h3 {
+            color: __STRONG_TEXT__ !important;
         }
 
         .hero-card {
@@ -470,28 +308,30 @@ def apply_page_style(
         }
 
         .hero-card h1 {
-            color: __STRONG_TEXT__;
+            color: __STRONG_TEXT__ !important;
             font-size: 3.1rem;
             line-height: 1;
             margin: 0 0 0.5rem 0;
         }
 
         .hero-card p {
-            color: __BODY_TEXT__;
+            color: __BODY_TEXT__ !important;
             font-size: 1.12rem;
             line-height: 1.65;
             max-width: 790px;
             margin-bottom: 0;
         }
 
-        .info-grid, .highlight-grid {
+        .info-grid,
+        .highlight-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1rem;
             margin: 1.3rem 0 1.6rem 0;
         }
 
-        .info-card, .highlight-card {
+        .info-card,
+        .highlight-card {
             background: __CARD_BACKGROUND__;
             border: 1px solid __BORDER_COLOR__;
             border-radius: 20px;
@@ -500,20 +340,20 @@ def apply_page_style(
         }
 
         .info-card h3 {
-            color: __STRONG_TEXT__;
+            color: __STRONG_TEXT__ !important;
             font-size: 1rem;
             margin: 0 0 0.35rem 0;
         }
 
         .info-card p {
-            color: __MUTED_TEXT__;
+            color: __MUTED_TEXT__ !important;
             font-size: 0.93rem;
             line-height: 1.5;
             margin: 0;
         }
 
         .highlight-card span {
-            color: __ACCENT_COLOR__;
+            color: __ACCENT_COLOR__ !important;
             font-size: 0.76rem;
             font-weight: 800;
             letter-spacing: 0.08em;
@@ -521,14 +361,14 @@ def apply_page_style(
         }
 
         .highlight-card strong {
-            color: __STRONG_TEXT__;
+            color: __STRONG_TEXT__ !important;
             display: block;
             font-size: 1.25rem;
             margin-top: 0.28rem;
         }
 
         .highlight-card p {
-            color: __MUTED_TEXT__;
+            color: __MUTED_TEXT__ !important;
             margin: 0.35rem 0 0 0;
             line-height: 1.45;
         }
@@ -545,19 +385,36 @@ def apply_page_style(
             font-weight: 700;
         }
 
-        .soft-note {
+        .soft-note,
+        .ethics-note {
             background: __SOFT_NOTE_BACKGROUND__;
             border-left: 5px solid __ACCENT_COLOR__;
             border-radius: 14px;
             padding: 0.9rem 1rem;
-            color: __BODY_TEXT__;
+            color: __BODY_TEXT__ !important;
             margin: 0.6rem 0 1.2rem 0;
+        }
+
+        .ethics-note {
+            background: __ETHICS_BACKGROUND__;
+            border-left-color: __ETHICS_BORDER__;
+        }
+
+        .ethics-note strong {
+            color: __STRONG_TEXT__ !important;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .vega-embed,
+        .vega-embed > div,
+        .vega-embed canvas,
+        .vega-embed svg {
+            background: transparent !important;
         }
         __READER_CSS__
         __HIGH_CONTRAST_CSS__
-        __DARK_MODE_CSS__
         __REDUCED_MOTION_CSS__
-        __SYSTEM_DARK_CSS__
         </style>
         """
 
@@ -579,12 +436,12 @@ def apply_page_style(
         "__SHADOW__": shadow,
         "__HERO_SHADOW__": hero_shadow,
         "__SOFT_NOTE_BACKGROUND__": soft_note_background,
+        "__ETHICS_BACKGROUND__": ethics_background,
+        "__ETHICS_BORDER__": ethics_border,
         "__TOOLBAR_TRANSITION__": toolbar_transition,
         "__READER_CSS__": reader_css,
         "__HIGH_CONTRAST_CSS__": high_contrast_css,
-        "__DARK_MODE_CSS__": dark_mode_css,
         "__REDUCED_MOTION_CSS__": reduced_motion_css,
-        "__SYSTEM_DARK_CSS__": system_dark_css,
     }
 
     for placeholder, value in replacements.items():
@@ -686,16 +543,10 @@ def render_accessible_summary(analysis):
     top_theme = analysis["themes"][0][0] if analysis["themes"] else "no recurring theme detected"
 
     with st.expander("Plain-language summary"):
-        st.write(
-            f"The strongest score is {format_score_label(strongest_field)} at {strongest_score}/5."
-        )
-        st.write(
-            f"The lowest score is {format_score_label(watch_field)} at {watch_score}/5."
-        )
+        st.write(f"The strongest score is {format_score_label(strongest_field)} at {strongest_score}/5.")
+        st.write(f"The lowest score is {format_score_label(watch_field)} at {watch_score}/5.")
         st.write(f"The most common theme is {top_theme}.")
-        st.write(
-            "Each chart is paired with a data table so the information is not communicated by color alone."
-        )
+        st.write("Each chart is paired with a data table so the information is not communicated by color alone.")
 
 
 def render_bar_chart(
@@ -735,11 +586,7 @@ def render_bar_chart(
         ],
     )
 
-    bars = base.mark_bar(
-        color=color,
-        cornerRadiusTopRight=10,
-        cornerRadiusBottomRight=10,
-    )
+    bars = base.mark_bar(color=color, cornerRadiusTopRight=10, cornerRadiusBottomRight=10)
     labels = base.mark_text(
         align="left",
         baseline="middle",
@@ -748,14 +595,24 @@ def render_bar_chart(
         fontSize=13,
     ).encode(text=alt.Text(f"{value_column}:Q", format=value_format))
 
-    chart = (bars + labels).properties(height=max(220, 44 * len(chart_data)))
-    st.altair_chart(
-        chart.configure_axis(
-            gridColor=grid_color,
-            labelColor=axis_color,
-            titleColor=axis_color,
-        ).configure_view(strokeWidth=0),
-        use_container_width=True,
+    chart = (bars + labels).properties(height=max(220, 44 * len(chart_data)), background="transparent")
+    chart = chart.configure_axis(
+        gridColor=grid_color,
+        labelColor=axis_color,
+        titleColor=axis_color,
+    ).configure_view(strokeWidth=0)
+    st.altair_chart(chart, use_container_width=True)
+
+
+def render_ethical_note():
+    st.markdown(
+        f"""
+        <div class="ethics-note">
+            <strong>Ethical Note</strong>
+            {ETHICAL_NOTE}
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -821,7 +678,6 @@ def build_report(analysis):
         lines.append("- Collect more feedback or expand the theme keyword list before recommending action.")
 
     lines.extend(["", "## Ethical Note", ETHICAL_NOTE])
-
     return "\n".join(lines)
 
 
@@ -838,10 +694,6 @@ def main():
             "Reader-friendly mode",
             help="Uses larger text, simpler cards, and a narrower reading width.",
         )
-        dark_mode = st.checkbox(
-            "Dark mode",
-            help="Uses a full dark background across the app, sidebar, cards, charts, and tables.",
-        )
         high_contrast_mode = st.checkbox(
             "High-contrast mode",
             help="Uses stronger contrast, clear borders, and high-contrast chart colors.",
@@ -853,8 +705,6 @@ def main():
         active_modes = []
         if reader_friendly_mode:
             active_modes.append("reader-friendly")
-        if dark_mode:
-            active_modes.append("dark")
         if high_contrast_mode:
             active_modes.append("high-contrast")
         if reduce_motion_mode:
@@ -868,8 +718,8 @@ def main():
         st.markdown("### Accessibility")
         st.caption("Charts include tooltips, text summaries, and matching tables so insights do not rely on color alone.")
 
-    apply_page_style(reader_friendly_mode, high_contrast_mode, reduce_motion_mode, dark_mode)
-    chart_colors = get_chart_colors(high_contrast_mode, dark_mode)
+    apply_page_style(reader_friendly_mode, high_contrast_mode, reduce_motion_mode)
+    chart_colors = get_chart_colors(high_contrast_mode)
     st.markdown('<a class="skip-link" href="#workplace-snapshot">Skip to workplace snapshot</a>', unsafe_allow_html=True)
     render_hero()
     render_intro_cards()
@@ -888,11 +738,7 @@ def main():
         st.stop()
 
     departments = sorted(feedback["department"].unique())
-    selected_departments = st.sidebar.multiselect(
-        "Departments",
-        departments,
-        default=departments,
-    )
+    selected_departments = st.sidebar.multiselect("Departments", departments, default=departments)
 
     filtered_feedback = feedback[feedback["department"].isin(selected_departments)]
     if filtered_feedback.empty:
@@ -918,9 +764,7 @@ def main():
         unsafe_allow_html=True,
     )
 
-    overview_tab, recommendations_tab, data_tab = st.tabs(
-        ["Overview", "Recommendations", "Feedback Data"]
-    )
+    overview_tab, recommendations_tab, data_tab = st.tabs(["Overview", "Recommendations", "Feedback Data"])
 
     with overview_tab:
         score_summary = pd.DataFrame(
@@ -944,9 +788,7 @@ def main():
         with st.expander("View average score data table"):
             st.dataframe(score_summary, hide_index=True, use_container_width=True)
 
-        theme_summary = pd.DataFrame(
-            analysis["themes"][:5], columns=["Theme", "Keyword Matches"]
-        )
+        theme_summary = pd.DataFrame(analysis["themes"][:5], columns=["Theme", "Keyword Matches"])
         st.subheader("Top Themes")
         st.caption("Theme counts are based on simple keyword matching in the sample feedback comments.")
         if theme_summary.empty:
@@ -984,8 +826,7 @@ def main():
         else:
             st.write("- Collect more feedback or expand the theme keyword list before recommending action.")
 
-        st.subheader("Ethical Note")
-        st.info(ETHICAL_NOTE)
+        render_ethical_note()
 
         st.download_button(
             "Download report",
@@ -995,12 +836,7 @@ def main():
         )
 
     with data_tab:
-        display_columns = [
-            "response_id",
-            "department",
-            *SCORE_FIELDS,
-            "comment",
-        ]
+        display_columns = ["response_id", "department", *SCORE_FIELDS, "comment"]
         available_columns = [column for column in display_columns if column in filtered_feedback]
         st.dataframe(filtered_feedback[available_columns], hide_index=True, use_container_width=True)
 

@@ -25,6 +25,14 @@ Organizations often struggle to interpret large volumes of qualitative employee 
 - Downloadable Markdown insight report
 - Ethical and privacy-focused design
 
+## Accessibility Features
+- Reader-friendly mode for larger text, calmer spacing, and a narrower reading width
+- High-contrast mode for stronger borders, simplified styling, and higher-contrast chart colors
+- Reduce-motion mode for users who prefer less animation or transition movement
+- Keyboard-visible focus styling and a skip link to the main workplace snapshot
+- Charts paired with plain-language summaries and data tables so insights do not rely on color alone
+- Streamlit toolbar styling that stays available on hover and keyboard focus while reducing visual clutter
+
 ## Demo Materials
 - Streamlit app: `app.py`
 - Sample dataset: `sample_data/employee_feedback_sample.csv`
@@ -74,7 +82,7 @@ InclusionIQ analyzes only anonymized and voluntary feedback. The tool is intende
 
 ## Known Limitations
 
-This prototype uses fictional sample data and rule-based keyword matching for theme detection. Future versions could expand the analysis with more advanced natural language processing, stronger accessibility settings, and additional reporting options.
+This prototype uses fictional sample data and rule-based keyword matching for theme detection. The accessibility features are intended to improve usability, but a future production version should still include manual keyboard testing, screen reader testing, mobile testing, and feedback from people with different access needs.
 
 ## Future Improvements
 

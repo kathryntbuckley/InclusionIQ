@@ -31,6 +31,13 @@ HIGH_CONTRAST_CHART_COLORS = {
     "axis": "#000000",
     "grid": "#6b7280",
 }
+DARK_CHART_COLORS = {
+    "score": "#f59e0b",
+    "theme": "#a78bfa",
+    "text": "#f8fafc",
+    "axis": "#e5e7eb",
+    "grid": "#475569",
+}
 SENTIMENT_LABELS = {
     "Positive": "Positive",
     "Mixed-positive": "Mixed+",
@@ -52,28 +59,74 @@ def load_sample_data():
     return pd.read_csv(SAMPLE_DATA_PATH)
 
 
-def get_chart_colors(high_contrast_mode):
-    return HIGH_CONTRAST_CHART_COLORS if high_contrast_mode else DEFAULT_CHART_COLORS
+def get_chart_colors(high_contrast_mode, dark_mode=False):
+    if dark_mode:
+        return DARK_CHART_COLORS
+    if high_contrast_mode:
+        return HIGH_CONTRAST_CHART_COLORS
+    return DEFAULT_CHART_COLORS
 
 
-def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduce_motion_mode=False):
+def apply_page_style(
+    reader_friendly_mode=False,
+    high_contrast_mode=False,
+    reduce_motion_mode=False,
+    dark_mode=False,
+):
     max_width = "920px" if reader_friendly_mode else "1180px"
-    page_background = "#ffffff" if high_contrast_mode else "linear-gradient(180deg, #fff7ed 0%, #ffffff 34%, #f8fafc 100%)"
-    sidebar_background = "#ffffff" if high_contrast_mode else "#fff7ed"
-    hero_background = "#ffffff" if high_contrast_mode else "linear-gradient(135deg, #fff7ed 0%, #fef3c7 46%, #ede9fe 100%)"
-    strong_text = "#000000" if high_contrast_mode else "#1f2937"
-    muted_text = "#111111" if high_contrast_mode else "#64748b"
-    body_text = "#000000" if high_contrast_mode else "#475569"
-    accent_color = "#000000" if high_contrast_mode else "#7c3aed"
-    focus_color = "#ffbf00" if high_contrast_mode else "#2563eb"
-    card_background = "#ffffff" if high_contrast_mode else "rgba(255, 255, 255, 0.88)"
-    metric_background = "#ffffff" if high_contrast_mode else "rgba(255, 255, 255, 0.9)"
-    border_color = "#000000" if high_contrast_mode else "rgba(124, 58, 237, 0.12)"
-    hero_border_color = "#000000" if high_contrast_mode else "rgba(124, 58, 237, 0.15)"
-    sidebar_border_color = "#000000" if high_contrast_mode else "rgba(124, 58, 237, 0.12)"
-    shadow = "none" if high_contrast_mode else "0 12px 28px rgba(15, 23, 42, 0.05)"
-    hero_shadow = "none" if high_contrast_mode else "0 18px 45px rgba(88, 28, 135, 0.10)"
-    soft_note_background = "#ffffff" if high_contrast_mode else "#f8fafc"
+
+    if dark_mode:
+        page_background = "#080b12"
+        sidebar_background = "#0f172a"
+        hero_background = "#111827"
+        strong_text = "#f8fafc"
+        muted_text = "#d1d5db"
+        body_text = "#e5e7eb"
+        accent_color = "#c4b5fd"
+        focus_color = "#facc15"
+        card_background = "#111827"
+        metric_background = "#111827"
+        border_color = "#facc15" if high_contrast_mode else "#334155"
+        hero_border_color = "#facc15" if high_contrast_mode else "#475569"
+        sidebar_border_color = "#475569"
+        shadow = "none" if high_contrast_mode else "0 14px 32px rgba(0, 0, 0, 0.28)"
+        hero_shadow = "none" if high_contrast_mode else "0 18px 45px rgba(0, 0, 0, 0.32)"
+        soft_note_background = "#0f172a"
+    elif high_contrast_mode:
+        page_background = "#ffffff"
+        sidebar_background = "#ffffff"
+        hero_background = "#ffffff"
+        strong_text = "#000000"
+        muted_text = "#111111"
+        body_text = "#000000"
+        accent_color = "#000000"
+        focus_color = "#ffbf00"
+        card_background = "#ffffff"
+        metric_background = "#ffffff"
+        border_color = "#000000"
+        hero_border_color = "#000000"
+        sidebar_border_color = "#000000"
+        shadow = "none"
+        hero_shadow = "none"
+        soft_note_background = "#ffffff"
+    else:
+        page_background = "linear-gradient(180deg, #fff7ed 0%, #ffffff 34%, #f8fafc 100%)"
+        sidebar_background = "#fff7ed"
+        hero_background = "linear-gradient(135deg, #fff7ed 0%, #fef3c7 46%, #ede9fe 100%)"
+        strong_text = "#1f2937"
+        muted_text = "#64748b"
+        body_text = "#475569"
+        accent_color = "#7c3aed"
+        focus_color = "#2563eb"
+        card_background = "rgba(255, 255, 255, 0.88)"
+        metric_background = "rgba(255, 255, 255, 0.9)"
+        border_color = "rgba(124, 58, 237, 0.12)"
+        hero_border_color = "rgba(124, 58, 237, 0.15)"
+        sidebar_border_color = "rgba(124, 58, 237, 0.12)"
+        shadow = "0 12px 28px rgba(15, 23, 42, 0.05)"
+        hero_shadow = "0 18px 45px rgba(88, 28, 135, 0.10)"
+        soft_note_background = "#f8fafc"
+
     toolbar_transition = "none" if reduce_motion_mode else "opacity 180ms ease-in-out"
 
     reader_css = """
@@ -114,7 +167,44 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
         }
         """ if reader_friendly_mode else ""
 
-    high_contrast_css = """
+    if high_contrast_mode and dark_mode:
+        high_contrast_css = """
+        [data-testid="stAppViewContainer"],
+        [data-testid="stSidebar"],
+        [data-testid="stHeader"] {
+            color: #f8fafc !important;
+        }
+
+        .hero-card,
+        .info-card,
+        .highlight-card,
+        .soft-note,
+        [data-testid="stMetric"] {
+            border-width: 2px !important;
+            box-shadow: none !important;
+        }
+
+        a {
+            color: #93c5fd !important;
+            text-decoration: underline !important;
+        }
+
+        .stButton button,
+        .stDownloadButton button {
+            background: #f8fafc !important;
+            border: 2px solid #facc15 !important;
+            color: #000000 !important;
+            font-weight: 800 !important;
+        }
+
+        input,
+        textarea,
+        select {
+            border: 2px solid #facc15 !important;
+        }
+        """
+    elif high_contrast_mode:
+        high_contrast_css = """
         [data-testid="stAppViewContainer"],
         [data-testid="stSidebar"],
         [data-testid="stHeader"] {
@@ -148,7 +238,76 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
         select {
             border: 2px solid #000000 !important;
         }
-        """ if high_contrast_mode else ""
+        """
+    else:
+        high_contrast_css = ""
+
+    dark_mode_css = """
+        html,
+        body,
+        .stApp,
+        [data-testid="stApp"],
+        [data-testid="stAppViewContainer"],
+        [data-testid="stMain"],
+        [data-testid="stMainBlockContainer"],
+        [data-testid="stVerticalBlock"],
+        section.main {
+            background: #080b12 !important;
+            color: #e5e7eb !important;
+        }
+
+        [data-testid="stSidebar"],
+        section[data-testid="stSidebar"] {
+            background: #0f172a !important;
+            color: #e5e7eb !important;
+        }
+
+        [data-testid="stHeader"] {
+            background: rgba(8, 11, 18, 0) !important;
+        }
+
+        [data-testid="stMarkdownContainer"],
+        [data-testid="stMarkdownContainer"] p,
+        [data-testid="stMarkdownContainer"] li,
+        [data-testid="stMarkdownContainer"] span,
+        [data-testid="stCaptionContainer"],
+        label,
+        .st-emotion-cache-ue6h4q,
+        .st-emotion-cache-16idsys {
+            color: #e5e7eb !important;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        .stMarkdown h1,
+        .stMarkdown h2,
+        .stMarkdown h3 {
+            color: #f8fafc !important;
+        }
+
+        [data-testid="stExpander"],
+        [data-testid="stExpander"] details,
+        [data-testid="stDataFrame"],
+        [data-testid="stTable"] {
+            background: #111827 !important;
+            color: #f8fafc !important;
+        }
+
+        .vega-embed,
+        .vega-embed > div,
+        .vega-embed canvas,
+        .vega-embed svg {
+            background: #111827 !important;
+        }
+
+        .vega-embed svg text {
+            fill: #f8fafc !important;
+        }
+        """ if dark_mode else ""
 
     reduced_motion_css = """
         *,
@@ -160,6 +319,71 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
             transition-duration: 0.01ms !important;
         }
         """ if reduce_motion_mode else ""
+
+    system_dark_css = """
+        @media (prefers-color-scheme: dark) {
+            html,
+            body,
+            .stApp,
+            [data-testid="stApp"],
+            [data-testid="stAppViewContainer"],
+            [data-testid="stMain"],
+            [data-testid="stMainBlockContainer"],
+            section.main {
+                background: #080b12 !important;
+                color: #e5e7eb !important;
+            }
+
+            [data-testid="stSidebar"],
+            section[data-testid="stSidebar"] {
+                background: #0f172a !important;
+                color: #e5e7eb !important;
+            }
+
+            [data-testid="stHeader"] {
+                background: rgba(8, 11, 18, 0) !important;
+            }
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6,
+            [data-testid="stMarkdownContainer"],
+            [data-testid="stMarkdownContainer"] p,
+            [data-testid="stMarkdownContainer"] li,
+            [data-testid="stMarkdownContainer"] span,
+            [data-testid="stCaptionContainer"],
+            label {
+                color: #f8fafc !important;
+            }
+
+            .hero-card,
+            .info-card,
+            .highlight-card,
+            .soft-note,
+            [data-testid="stMetric"],
+            [data-testid="stExpander"],
+            [data-testid="stDataFrame"],
+            [data-testid="stTable"] {
+                background: #111827 !important;
+                color: #f8fafc !important;
+                border-color: #334155 !important;
+            }
+
+            .vega-embed,
+            .vega-embed > div,
+            .vega-embed canvas,
+            .vega-embed svg {
+                background: #111827 !important;
+            }
+
+            .vega-embed svg text {
+                fill: #f8fafc !important;
+            }
+        }
+        """
 
     style = """
         <style>
@@ -331,7 +555,9 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
         }
         __READER_CSS__
         __HIGH_CONTRAST_CSS__
+        __DARK_MODE_CSS__
         __REDUCED_MOTION_CSS__
+        __SYSTEM_DARK_CSS__
         </style>
         """
 
@@ -356,7 +582,9 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
         "__TOOLBAR_TRANSITION__": toolbar_transition,
         "__READER_CSS__": reader_css,
         "__HIGH_CONTRAST_CSS__": high_contrast_css,
+        "__DARK_MODE_CSS__": dark_mode_css,
         "__REDUCED_MOTION_CSS__": reduced_motion_css,
+        "__SYSTEM_DARK_CSS__": system_dark_css,
     }
 
     for placeholder, value in replacements.items():
@@ -610,6 +838,10 @@ def main():
             "Reader-friendly mode",
             help="Uses larger text, simpler cards, and a narrower reading width.",
         )
+        dark_mode = st.checkbox(
+            "Dark mode",
+            help="Uses a full dark background across the app, sidebar, cards, charts, and tables.",
+        )
         high_contrast_mode = st.checkbox(
             "High-contrast mode",
             help="Uses stronger contrast, clear borders, and high-contrast chart colors.",
@@ -621,6 +853,8 @@ def main():
         active_modes = []
         if reader_friendly_mode:
             active_modes.append("reader-friendly")
+        if dark_mode:
+            active_modes.append("dark")
         if high_contrast_mode:
             active_modes.append("high-contrast")
         if reduce_motion_mode:
@@ -634,8 +868,8 @@ def main():
         st.markdown("### Accessibility")
         st.caption("Charts include tooltips, text summaries, and matching tables so insights do not rely on color alone.")
 
-    apply_page_style(reader_friendly_mode, high_contrast_mode, reduce_motion_mode)
-    chart_colors = get_chart_colors(high_contrast_mode)
+    apply_page_style(reader_friendly_mode, high_contrast_mode, reduce_motion_mode, dark_mode)
+    chart_colors = get_chart_colors(high_contrast_mode, dark_mode)
     st.markdown('<a class="skip-link" href="#workplace-snapshot">Skip to workplace snapshot</a>', unsafe_allow_html=True)
     render_hero()
     render_intro_cards()

@@ -218,6 +218,11 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
             transform: translateY(0);
         }
 
+        #workplace-snapshot:focus {
+            outline: 3px solid __FOCUS_COLOR__ !important;
+            outline-offset: 4px !important;
+        }
+
         a:focus-visible,
         button:focus-visible,
         input:focus-visible,
@@ -385,6 +390,18 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
             font-weight: 700;
         }
 
+        [data-testid="stDataFrame"],
+        [data-testid="stTable"],
+        .vega-embed {
+            color-scheme: light;
+        }
+
+        [data-testid="stDataFrame"],
+        [data-testid="stTable"] {
+            background: __CARD_BACKGROUND__ !important;
+            color: __BODY_TEXT__ !important;
+        }
+
         .soft-note,
         .ethics-note {
             background: __SOFT_NOTE_BACKGROUND__;
@@ -400,10 +417,16 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
             border-left-color: __ETHICS_BORDER__;
         }
 
-        .ethics-note strong {
+        .ethics-note h3 {
             color: __STRONG_TEXT__ !important;
-            display: block;
-            margin-bottom: 0.25rem;
+            font-size: 1rem;
+            line-height: 1.35;
+            margin: 0 0 0.25rem 0;
+        }
+
+        .ethics-note p {
+            color: __BODY_TEXT__ !important;
+            margin: 0;
         }
 
         .vega-embed,
@@ -607,9 +630,9 @@ def render_bar_chart(
 def render_ethical_note():
     st.markdown(
         f"""
-        <div class="ethics-note">
-            <strong>Ethical Note</strong>
-            {ETHICAL_NOTE}
+        <div class="ethics-note" role="note" aria-labelledby="ethical-note-heading">
+            <h3 id="ethical-note-heading">Ethical Note</h3>
+            <p>{ETHICAL_NOTE}</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -747,8 +770,7 @@ def main():
 
     analysis = analyze_feedback(filtered_feedback)
 
-    st.markdown('<div id="workplace-snapshot"></div>', unsafe_allow_html=True)
-    st.markdown("### Workplace snapshot")
+    st.markdown('<h3 id="workplace-snapshot" tabindex="-1">Workplace snapshot</h3>', unsafe_allow_html=True)
     metric_columns = st.columns(4)
     metric_columns[0].metric("Responses", len(analysis["rows"]))
     metric_columns[1].metric("Departments", filtered_feedback["department"].nunique())
@@ -772,7 +794,7 @@ def main():
                 "Category": [format_score_label(field) for field in analysis["averages"]],
                 "Average": list(analysis["averages"].values()),
             }
-        )
+        ).sort_values("Average", ascending=False, ignore_index=True)
         st.subheader("Average Scores")
         st.caption("Higher scores indicate more positive employee ratings. The chart is paired with a table below.")
         render_bar_chart(
@@ -794,6 +816,7 @@ def main():
         if theme_summary.empty:
             st.info("No recurring theme keywords found.")
         else:
+            theme_summary = theme_summary.sort_values("Keyword Matches", ascending=False, ignore_index=True)
             max_theme_count = max(theme_summary["Keyword Matches"].max(), 1)
             render_bar_chart(
                 theme_summary,
@@ -820,11 +843,10 @@ def main():
 
     with recommendations_tab:
         st.subheader("Recommended Actions")
-        if analysis["recommendations"]:
-            for recommendation in analysis["recommendations"]:
-                st.write(f"- {recommendation}")
-        else:
-            st.write("- Collect more feedback or expand the theme keyword list before recommending action.")
+        recommendation_items = analysis["recommendations"] or [
+            "Collect more feedback or expand the theme keyword list before recommending action."
+        ]
+        st.markdown("\n".join(f"- {recommendation}" for recommendation in recommendation_items))
 
         render_ethical_note()
 

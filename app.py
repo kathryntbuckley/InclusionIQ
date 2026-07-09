@@ -106,6 +106,25 @@ def apply_page_style(reader_friendly_mode=False, high_contrast_mode=False, reduc
             line-height: 1.75;
         }
 
+        [data-testid="stHeader"] {
+            background: rgba(255, 255, 255, 0);
+            box-shadow: none;
+        }
+
+        [data-testid="stToolbar"] {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 180ms ease-in-out;
+        }
+
+        [data-testid="stHeader"]:hover [data-testid="stToolbar"],
+        [data-testid="stHeader"]:focus-within [data-testid="stToolbar"],
+        [data-testid="stToolbar"]:hover,
+        [data-testid="stToolbar"]:focus-within {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
         .hero-card {
             border-radius: 14px;
             padding: 1.6rem 1.7rem;
